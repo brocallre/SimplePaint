@@ -1,6 +1,8 @@
 using System;
 using System.Drawing;
 using System.Drawing.Drawing2D;
+using System.Drawing.Imaging;
+using System.IO;
 using System.Windows.Forms;
 
 namespace SimplePaint
@@ -188,6 +190,43 @@ namespace SimplePaint
         private void trbLineWidth_ValueChanged(object sender, EventArgs e)
         {
             currentLineWidth = trbLineWidth.Value;
+        }
+
+        // 저장 버튼 클릭 시 호출되는 이벤트 핸들러: 캔버스 그림을 png/jpg/bmp 파일로 저장
+        private void btnSaveFile_Click(object sender, EventArgs e)
+        {
+            if (canvasBitmap == null) return;
+
+            using (SaveFileDialog dlg = new SaveFileDialog())
+            {
+                dlg.Filter = "PNG 파일 (*.png)|*.png|JPG 파일 (*.jpg)|*.jpg|BMP 파일 (*.bmp)|*.bmp";
+                dlg.Title = "이미지 파일 저장";
+                dlg.FileName = "image";
+                dlg.AddExtension = true;
+                if (dlg.ShowDialog() != DialogResult.OK) return;
+
+                try
+                {
+                    // 파일 확장자에 따라 저장 포맷을 결정
+                    ImageFormat format;
+                    string ext = Path.GetExtension(dlg.FileName).ToLower();
+                    if (ext == ".jpg" || ext == ".jpeg")
+                        format = ImageFormat.Jpeg;
+                    else if (ext == ".bmp")
+                        format = ImageFormat.Bmp;
+                    else
+                        format = ImageFormat.Png;
+
+                    canvasBitmap.Save(dlg.FileName, format);
+                    MessageBox.Show("이미지가 저장되었습니다.\n" + dlg.FileName,
+                        "저장 완료", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show("이미지 저장 중 오류가 발생했습니다.\n" + ex.Message,
+                        "오류", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
+            }
         }
     }
 }

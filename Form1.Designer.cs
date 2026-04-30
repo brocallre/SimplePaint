@@ -36,9 +36,9 @@ namespace SimplePaint
             ((System.ComponentModel.ISupportInitialize)(this.trbLineWidth)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.picCanvas)).BeginInit();
             this.SuspendLayout();
-            // 
+            //
             // lblAppName
-            // 
+            //
             this.lblAppName.AutoSize = true;
             this.lblAppName.Font = new System.Drawing.Font("Segoe UI", 22F, System.Drawing.FontStyle.Bold);
             this.lblAppName.ForeColor = System.Drawing.Color.RoyalBlue;
@@ -48,9 +48,9 @@ namespace SimplePaint
             this.lblAppName.Size = new System.Drawing.Size(477, 99);
             this.lblAppName.TabIndex = 0;
             this.lblAppName.Text = "Simple Paint";
-            // 
+            //
             // grpShape
-            // 
+            //
             this.grpShape.Controls.Add(this.btnLine);
             this.grpShape.Controls.Add(this.btnRectangle);
             this.grpShape.Controls.Add(this.btnCircle);
@@ -62,9 +62,9 @@ namespace SimplePaint
             this.grpShape.TabIndex = 1;
             this.grpShape.TabStop = false;
             this.grpShape.Text = "도형 선택";
-            // 
+            //
             // btnLine
-            // 
+            //
             this.btnLine.Image = ((System.Drawing.Image)(resources.GetObject("btnLine.Image")));
             this.btnLine.Location = new System.Drawing.Point(26, 40);
             this.btnLine.Margin = new System.Windows.Forms.Padding(8, 6, 8, 6);
@@ -75,9 +75,9 @@ namespace SimplePaint
             this.btnLine.TextAlign = System.Drawing.ContentAlignment.BottomCenter;
             this.btnLine.UseVisualStyleBackColor = true;
             this.btnLine.Click += new System.EventHandler(this.btnLine_Click);
-            // 
+            //
             // btnRectangle
-            // 
+            //
             this.btnRectangle.Image = ((System.Drawing.Image)(resources.GetObject("btnRectangle.Image")));
             this.btnRectangle.Location = new System.Drawing.Point(231, 40);
             this.btnRectangle.Margin = new System.Windows.Forms.Padding(8, 6, 8, 6);
@@ -88,9 +88,9 @@ namespace SimplePaint
             this.btnRectangle.TextAlign = System.Drawing.ContentAlignment.BottomCenter;
             this.btnRectangle.UseVisualStyleBackColor = true;
             this.btnRectangle.Click += new System.EventHandler(this.btnRectangle_Click);
-            // 
+            //
             // btnCircle
-            // 
+            //
             this.btnCircle.Image = ((System.Drawing.Image)(resources.GetObject("btnCircle.Image")));
             this.btnCircle.Location = new System.Drawing.Point(437, 40);
             this.btnCircle.Margin = new System.Windows.Forms.Padding(8, 6, 8, 6);
@@ -101,9 +101,9 @@ namespace SimplePaint
             this.btnCircle.TextAlign = System.Drawing.ContentAlignment.BottomCenter;
             this.btnCircle.UseVisualStyleBackColor = true;
             this.btnCircle.Click += new System.EventHandler(this.btnCircle_Click);
-            // 
+            //
             // grpColor
-            // 
+            //
             this.grpColor.Controls.Add(this.cmbColor);
             this.grpColor.Location = new System.Drawing.Point(733, 120);
             this.grpColor.Margin = new System.Windows.Forms.Padding(8, 6, 8, 6);
@@ -113,9 +113,9 @@ namespace SimplePaint
             this.grpColor.TabIndex = 2;
             this.grpColor.TabStop = false;
             this.grpColor.Text = "색 선택";
-            // 
+            //
             // cmbColor
-            // 
+            //
             this.cmbColor.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.cmbColor.FormattingEnabled = true;
             this.cmbColor.Items.AddRange(new object[] {
@@ -129,9 +129,9 @@ namespace SimplePaint
             this.cmbColor.Size = new System.Drawing.Size(251, 38);
             this.cmbColor.TabIndex = 0;
             this.cmbColor.SelectedIndexChanged += new System.EventHandler(this.cmbColor_SelectedIndexChanged);
-            // 
+            //
             // grpLineWidth
-            // 
+            //
             this.grpLineWidth.Controls.Add(this.trbLineWidth);
             this.grpLineWidth.Location = new System.Drawing.Point(1067, 120);
             this.grpLineWidth.Margin = new System.Windows.Forms.Padding(8, 6, 8, 6);
@@ -141,9 +141,9 @@ namespace SimplePaint
             this.grpLineWidth.TabIndex = 3;
             this.grpLineWidth.TabStop = false;
             this.grpLineWidth.Text = "선 두께";
-            // 
+            //
             // trbLineWidth
-            // 
+            //
             this.trbLineWidth.Location = new System.Drawing.Point(26, 50);
             this.trbLineWidth.Margin = new System.Windows.Forms.Padding(8, 6, 8, 6);
             this.trbLineWidth.Minimum = 1;
@@ -152,9 +152,9 @@ namespace SimplePaint
             this.trbLineWidth.TabIndex = 0;
             this.trbLineWidth.Value = 2;
             this.trbLineWidth.ValueChanged += new System.EventHandler(this.trbLineWidth_ValueChanged);
-            // 
+            //
             // btnOpenFile
-            // 
+            //
             this.btnOpenFile.BackColor = System.Drawing.Color.LightYellow;
             this.btnOpenFile.Font = new System.Drawing.Font("Segoe UI", 14F, System.Drawing.FontStyle.Bold);
             this.btnOpenFile.Location = new System.Drawing.Point(1697, 150);
@@ -164,9 +164,9 @@ namespace SimplePaint
             this.btnOpenFile.TabIndex = 4;
             this.btnOpenFile.Text = "열기";
             this.btnOpenFile.UseVisualStyleBackColor = false;
-            // 
+            //
             // btnSaveFile
-            // 
+            //
             this.btnSaveFile.BackColor = System.Drawing.Color.LightCyan;
             this.btnSaveFile.Font = new System.Drawing.Font("Segoe UI", 14F, System.Drawing.FontStyle.Bold);
             this.btnSaveFile.Location = new System.Drawing.Point(1929, 150);
@@ -176,9 +176,10 @@ namespace SimplePaint
             this.btnSaveFile.TabIndex = 5;
             this.btnSaveFile.Text = "저장";
             this.btnSaveFile.UseVisualStyleBackColor = false;
-            // 
+            this.btnSaveFile.Click += new System.EventHandler(this.btnSaveFile_Click);
+            //
             // picCanvas
-            // 
+            //
             this.picCanvas.BackColor = System.Drawing.Color.White;
             this.picCanvas.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.picCanvas.Location = new System.Drawing.Point(39, 320);
@@ -187,9 +188,9 @@ namespace SimplePaint
             this.picCanvas.Size = new System.Drawing.Size(2093, 918);
             this.picCanvas.TabIndex = 6;
             this.picCanvas.TabStop = false;
-            // 
+            //
             // Form1
-            // 
+            //
             this.AutoScaleDimensions = new System.Drawing.SizeF(18F, 30F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(2173, 1270);
