@@ -1,7 +1,6 @@
 using System;
 using System.Drawing;
 using System.Drawing.Drawing2D;
-using System.IO;
 using System.Windows.Forms;
 
 namespace SimplePaint
@@ -39,9 +38,13 @@ namespace SimplePaint
         {
             InitializeComponent();
 
-            // 도형 선택 버튼에 아이콘 이미지 로드
-            LoadShapeButtonImages();
+            // 런타임 전용 초기화는 Form 로드 시점에 수행 (디자이너에서 실행되지 않도록)
+            this.Load += Form1_Load;
+        }
 
+        // 폼이 처음 로드될 때 호출되는 이벤트 핸들러: 캔버스와 이벤트 연결을 준비
+        private void Form1_Load(object sender, EventArgs e)
+        {
             // 캔버스(비트맵) 초기화: PictureBox 크기와 동일하게 생성
             canvasBitmap = new Bitmap(picCanvas.Width, picCanvas.Height);
             canvasGraphics = Graphics.FromImage(canvasBitmap);
@@ -60,24 +63,6 @@ namespace SimplePaint
 
             // 콤보 박스 기본 선택 항목을 검정으로 설정
             cmbColor.SelectedIndex = 0;
-        }
-
-        // 도형 선택 버튼에 표시할 아이콘 이미지를 img 폴더에서 읽어들이는 함수
-        private void LoadShapeButtonImages()
-        {
-            // 실행 파일 위치 기준으로 img 폴더 경로 계산
-            string imgDir = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "img");
-            string linePath = Path.Combine(imgDir, "line.png");
-            string squarePath = Path.Combine(imgDir, "square.png");
-            string circlePath = Path.Combine(imgDir, "circle.png");
-
-            // 파일이 존재하면 버튼에 이미지를 설정
-            if (File.Exists(linePath))
-                btnLine.Image = Image.FromFile(linePath);
-            if (File.Exists(squarePath))
-                btnRectangle.Image = Image.FromFile(squarePath);
-            if (File.Exists(circlePath))
-                btnCircle.Image = Image.FromFile(circlePath);
         }
 
         // 마우스 버튼이 눌릴 때: 드래그 시작점을 기록하고 그리기 모드로 진입
