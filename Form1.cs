@@ -1,5 +1,6 @@
 using System;
 using System.Drawing;
+using System.Drawing.Drawing2D;
 using System.IO;
 using System.Windows.Forms;
 
@@ -9,6 +10,21 @@ namespace SimplePaint
     {
         // 사용할 도형 종류 정의
         private enum ToolType { Line, Rectangle, Circle }
+
+        // 실제 그림이 저장되는 비트맵 (캔버스)
+        private Bitmap canvasBitmap;
+
+        // 비트맵 위에 그리기 위한 그래픽스 객체
+        private Graphics canvasGraphics;
+
+        // 현재 마우스 드래그 중인지 여부
+        private bool isDrawing = false;
+
+        // 드래그 시작점
+        private Point startPoint;
+
+        // 드래그 끝점 (현재 마우스 위치)
+        private Point endPoint;
 
         // 현재 선택된 도형 (기본값: 직선)
         private ToolType currentTool = ToolType.Line;
@@ -25,6 +41,22 @@ namespace SimplePaint
 
             // 도형 선택 버튼에 아이콘 이미지 로드
             LoadShapeButtonImages();
+
+            // 캔버스(비트맵) 초기화: PictureBox 크기와 동일하게 생성
+            canvasBitmap = new Bitmap(picCanvas.Width, picCanvas.Height);
+            canvasGraphics = Graphics.FromImage(canvasBitmap);
+            // 캔버스 배경을 흰색으로 채움
+            canvasGraphics.Clear(Color.White);
+            // 그린 결과를 PictureBox에 표시
+            picCanvas.Image = canvasBitmap;
+
+            // 마우스 이벤트 연결
+            picCanvas.MouseDown += PicCanvas_MouseDown;
+            picCanvas.MouseMove += PicCanvas_MouseMove;
+            picCanvas.MouseUp += PicCanvas_MouseUp;
+
+            // PictureBox가 다시 그려질 때 미리보기 도형을 그릴 수 있도록 Paint 이벤트 연결
+            picCanvas.Paint += PicCanvas_Paint;
 
             // 콤보 박스 기본 선택 항목을 검정으로 설정
             cmbColor.SelectedIndex = 0;
@@ -46,6 +78,84 @@ namespace SimplePaint
                 btnRectangle.Image = Image.FromFile(squarePath);
             if (File.Exists(circlePath))
                 btnCircle.Image = Image.FromFile(circlePath);
+        }
+
+        // 마우스 버튼이 눌릴 때: 드래그 시작점을 기록하고 그리기 모드로 진입
+        private void PicCanvas_MouseDown(object sender, MouseEventArgs e)
+        {
+            isDrawing = true;
+            startPoint = e.Location;
+            endPoint = e.Location;
+        }
+
+        // 마우스를 누른 채 이동할 때: 끝점을 갱신하고 미리보기를 위해 화면을 다시 그리도록 요청
+        private void PicCanvas_MouseMove(object sender, MouseEventArgs e)
+        {
+            if (!isDrawing) return;
+
+            endPoint = e.Location;
+            // Paint 이벤트를 발생시켜 점선 미리보기를 화면에 표시
+            picCanvas.Invalidate();
+        }
+
+        // 마우스 버튼에서 손을 뗄 때: 비트맵에 도형을 확정해서 그리고 화면을 갱신
+        private void PicCanvas_MouseUp(object sender, MouseEventArgs e)
+        {
+            if (!isDrawing) return;
+
+            isDrawing = false;
+            endPoint = e.Location;
+
+            // 현재 색상과 선 두께로 펜을 만들어 비트맵에 도형을 그림
+            using (Pen pen = new Pen(currentColor, currentLineWidth))
+            {
+                DrawShape(canvasGraphics, pen, startPoint, endPoint);
+            }
+
+            // 변경된 비트맵을 화면에 반영
+            picCanvas.Invalidate();
+        }
+
+        // PictureBox가 다시 그려질 때 호출되는 핸들러: 드래그 중에는 점선으로 미리보기를 그림
+        private void PicCanvas_Paint(object sender, PaintEventArgs e)
+        {
+            if (!isDrawing) return;
+
+            // 미리보기용 점선 펜 생성
+            using (Pen previewPen = new Pen(currentColor, currentLineWidth))
+            {
+                previewPen.DashStyle = DashStyle.Dash;
+                DrawShape(e.Graphics, previewPen, startPoint, endPoint);
+            }
+        }
+
+        // 현재 선택된 도형 종류에 따라 직선, 사각형, 원 중 하나를 그리는 함수
+        private void DrawShape(Graphics g, Pen pen, Point p1, Point p2)
+        {
+            Rectangle rect = GetRectangle(p1, p2);
+            switch (currentTool)
+            {
+                case ToolType.Line:
+                    g.DrawLine(pen, p1, p2);
+                    break;
+                case ToolType.Rectangle:
+                    g.DrawRectangle(pen, rect);
+                    break;
+                case ToolType.Circle:
+                    g.DrawEllipse(pen, rect);
+                    break;
+            }
+        }
+
+        // 두 점의 좌표로부터 사각형(좌상단 좌표, 폭, 높이)을 생성하는 함수
+        private Rectangle GetRectangle(Point p1, Point p2)
+        {
+            return new Rectangle(
+                Math.Min(p1.X, p2.X),
+                Math.Min(p1.Y, p2.Y),
+                Math.Abs(p1.X - p2.X),
+                Math.Abs(p1.Y - p2.Y)
+            );
         }
 
         // 직선 그리기 버튼 클릭 시 호출되는 이벤트 핸들러
