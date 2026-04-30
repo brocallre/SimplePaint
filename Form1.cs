@@ -21,10 +21,10 @@ namespace SimplePaint
         // 현재 마우스 드래그 중인지 여부
         private bool isDrawing = false;
 
-        // 드래그 시작점
+        // 드래그 시작점 (PictureBox 화면 좌표)
         private Point startPoint;
 
-        // 드래그 끝점 (현재 마우스 위치)
+        // 드래그 끝점 (PictureBox 화면 좌표)
         private Point endPoint;
 
         // 현재 선택된 도형 (기본값: 직선)
@@ -36,12 +36,19 @@ namespace SimplePaint
         // 현재 설정된 선 두께 (기본값: 2)
         private int currentLineWidth = 2;
 
+        // 현재 확대/축소 배율 (1.0 = 원본)
+        private float zoomFactor = 1.0f;
+
         public Form1()
         {
             InitializeComponent();
 
             // 런타임 전용 초기화는 Form 로드 시점에 수행 (디자이너에서 실행되지 않도록)
             this.Load += Form1_Load;
+
+            // 키 입력으로 확대/축소를 처리할 수 있도록 폼이 키 이벤트를 먼저 받도록 설정
+            this.KeyPreview = true;
+            this.KeyDown += Form1_KeyDown;
         }
 
         // 폼이 처음 로드될 때 호출되는 이벤트 핸들러: 캔버스와 이벤트 연결을 준비
@@ -93,10 +100,14 @@ namespace SimplePaint
             isDrawing = false;
             endPoint = e.Location;
 
+            // 화면 좌표(확대된 좌표)를 비트맵 원본 좌표로 변환
+            Point bmpStart = ToBitmapPoint(startPoint);
+            Point bmpEnd = ToBitmapPoint(endPoint);
+
             // 현재 색상과 선 두께로 펜을 만들어 비트맵에 도형을 그림
             using (Pen pen = new Pen(currentColor, currentLineWidth))
             {
-                DrawShape(canvasGraphics, pen, startPoint, endPoint);
+                DrawShape(canvasGraphics, pen, bmpStart, bmpEnd);
             }
 
             // 변경된 비트맵을 화면에 반영
@@ -108,8 +119,11 @@ namespace SimplePaint
         {
             if (!isDrawing) return;
 
-            // 미리보기용 점선 펜 생성
-            using (Pen previewPen = new Pen(currentColor, currentLineWidth))
+            // 미리보기는 화면 좌표 기준으로 그려지므로 줌 배율에 맞춰 펜 두께를 조정
+            float previewWidth = currentLineWidth * zoomFactor;
+            if (previewWidth < 1) previewWidth = 1;
+
+            using (Pen previewPen = new Pen(currentColor, previewWidth))
             {
                 previewPen.DashStyle = DashStyle.Dash;
                 DrawShape(e.Graphics, previewPen, startPoint, endPoint);
@@ -143,6 +157,28 @@ namespace SimplePaint
                 Math.Abs(p1.X - p2.X),
                 Math.Abs(p1.Y - p2.Y)
             );
+        }
+
+        // PictureBox의 화면 좌표를 비트맵 원본 좌표로 변환 (줌 배율의 역수 적용)
+        private Point ToBitmapPoint(Point p)
+        {
+            if (zoomFactor <= 0) return p;
+            return new Point((int)(p.X / zoomFactor), (int)(p.Y / zoomFactor));
+        }
+
+        // 현재 줌 배율을 PictureBox 크기에 적용해서 화면을 갱신하는 함수
+        private void ApplyZoom()
+        {
+            if (canvasBitmap == null) return;
+
+            int newWidth = (int)(canvasBitmap.Width * zoomFactor);
+            int newHeight = (int)(canvasBitmap.Height * zoomFactor);
+            if (newWidth < 1) newWidth = 1;
+            if (newHeight < 1) newHeight = 1;
+
+            // PictureBox 크기를 줌 배율에 따라 조정 -> Panel의 AutoScroll 덕분에 스크롤바가 자동 표시
+            picCanvas.Size = new Size(newWidth, newHeight);
+            picCanvas.Invalidate();
         }
 
         // 직선 그리기 버튼 클릭 시 호출되는 이벤트 핸들러
@@ -192,6 +228,50 @@ namespace SimplePaint
             currentLineWidth = trbLineWidth.Value;
         }
 
+        // 열기 버튼 클릭 시 호출되는 이벤트 핸들러: 외부 이미지를 캔버스로 불러옴
+        private void btnOpenFile_Click(object sender, EventArgs e)
+        {
+            using (OpenFileDialog dlg = new OpenFileDialog())
+            {
+                dlg.Filter = "이미지 파일 (*.png;*.jpg;*.jpeg;*.bmp)|*.png;*.jpg;*.jpeg;*.bmp|모든 파일 (*.*)|*.*";
+                dlg.Title = "이미지 파일 열기";
+                if (dlg.ShowDialog() != DialogResult.OK) return;
+
+                try
+                {
+                    // 기존 캔버스 자원 해제
+                    if (canvasGraphics != null)
+                    {
+                        canvasGraphics.Dispose();
+                        canvasGraphics = null;
+                    }
+                    if (canvasBitmap != null)
+                    {
+                        picCanvas.Image = null;
+                        canvasBitmap.Dispose();
+                        canvasBitmap = null;
+                    }
+
+                    // 외부 이미지를 새 비트맵으로 복사 (원본 파일이 잠기지 않도록 사본 사용)
+                    using (Image loaded = Image.FromFile(dlg.FileName))
+                    {
+                        canvasBitmap = new Bitmap(loaded);
+                    }
+                    canvasGraphics = Graphics.FromImage(canvasBitmap);
+                    picCanvas.Image = canvasBitmap;
+
+                    // 줌 배율을 원본 크기로 되돌리고 PictureBox 크기를 이미지 크기에 맞춤
+                    zoomFactor = 1.0f;
+                    ApplyZoom();
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show("이미지를 불러오는 중 오류가 발생했습니다.\n" + ex.Message,
+                        "오류", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
+            }
+        }
+
         // 저장 버튼 클릭 시 호출되는 이벤트 핸들러: 캔버스 그림을 png/jpg/bmp 파일로 저장
         private void btnSaveFile_Click(object sender, EventArgs e)
         {
@@ -226,6 +306,34 @@ namespace SimplePaint
                     MessageBox.Show("이미지 저장 중 오류가 발생했습니다.\n" + ex.Message,
                         "오류", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 }
+            }
+        }
+
+        // 키보드 + / - / 0 키로 확대/축소를 처리하는 이벤트 핸들러
+        private void Form1_KeyDown(object sender, KeyEventArgs e)
+        {
+            // + 키 (=, 숫자 패드 + 모두 인식): 확대
+            if (e.KeyCode == Keys.Oemplus || e.KeyCode == Keys.Add)
+            {
+                zoomFactor *= 1.2f;
+                if (zoomFactor > 10.0f) zoomFactor = 10.0f;
+                ApplyZoom();
+                e.Handled = true;
+            }
+            // - 키: 축소
+            else if (e.KeyCode == Keys.OemMinus || e.KeyCode == Keys.Subtract)
+            {
+                zoomFactor /= 1.2f;
+                if (zoomFactor < 0.1f) zoomFactor = 0.1f;
+                ApplyZoom();
+                e.Handled = true;
+            }
+            // 0 키: 원본 크기로 복원
+            else if (e.KeyCode == Keys.D0 || e.KeyCode == Keys.NumPad0)
+            {
+                zoomFactor = 1.0f;
+                ApplyZoom();
+                e.Handled = true;
             }
         }
     }

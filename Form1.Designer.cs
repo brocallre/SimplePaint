@@ -29,11 +29,13 @@ namespace SimplePaint
             this.trbLineWidth = new System.Windows.Forms.TrackBar();
             this.btnOpenFile = new System.Windows.Forms.Button();
             this.btnSaveFile = new System.Windows.Forms.Button();
+            this.pnlCanvas = new System.Windows.Forms.Panel();
             this.picCanvas = new System.Windows.Forms.PictureBox();
             this.grpShape.SuspendLayout();
             this.grpColor.SuspendLayout();
             this.grpLineWidth.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.trbLineWidth)).BeginInit();
+            this.pnlCanvas.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.picCanvas)).BeginInit();
             this.SuspendLayout();
             //
@@ -164,6 +166,7 @@ namespace SimplePaint
             this.btnOpenFile.TabIndex = 4;
             this.btnOpenFile.Text = "열기";
             this.btnOpenFile.UseVisualStyleBackColor = false;
+            this.btnOpenFile.Click += new System.EventHandler(this.btnOpenFile_Click);
             //
             // btnSaveFile
             //
@@ -178,15 +181,26 @@ namespace SimplePaint
             this.btnSaveFile.UseVisualStyleBackColor = false;
             this.btnSaveFile.Click += new System.EventHandler(this.btnSaveFile_Click);
             //
+            // pnlCanvas : 캔버스를 감싸는 스크롤 패널 (이미지가 클 때 스크롤바 자동 표시)
+            //
+            this.pnlCanvas.AutoScroll = true;
+            this.pnlCanvas.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.pnlCanvas.Controls.Add(this.picCanvas);
+            this.pnlCanvas.Location = new System.Drawing.Point(39, 320);
+            this.pnlCanvas.Margin = new System.Windows.Forms.Padding(8, 6, 8, 6);
+            this.pnlCanvas.Name = "pnlCanvas";
+            this.pnlCanvas.Size = new System.Drawing.Size(2093, 918);
+            this.pnlCanvas.TabIndex = 6;
+            //
             // picCanvas
             //
             this.picCanvas.BackColor = System.Drawing.Color.White;
-            this.picCanvas.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.picCanvas.Location = new System.Drawing.Point(39, 320);
+            this.picCanvas.Location = new System.Drawing.Point(0, 0);
             this.picCanvas.Margin = new System.Windows.Forms.Padding(8, 6, 8, 6);
             this.picCanvas.Name = "picCanvas";
-            this.picCanvas.Size = new System.Drawing.Size(2093, 918);
-            this.picCanvas.TabIndex = 6;
+            this.picCanvas.Size = new System.Drawing.Size(2089, 914);
+            this.picCanvas.SizeMode = System.Windows.Forms.PictureBoxSizeMode.StretchImage;
+            this.picCanvas.TabIndex = 0;
             this.picCanvas.TabStop = false;
             //
             // Form1
@@ -194,7 +208,7 @@ namespace SimplePaint
             this.AutoScaleDimensions = new System.Drawing.SizeF(18F, 30F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(2173, 1270);
-            this.Controls.Add(this.picCanvas);
+            this.Controls.Add(this.pnlCanvas);
             this.Controls.Add(this.btnSaveFile);
             this.Controls.Add(this.btnOpenFile);
             this.Controls.Add(this.grpLineWidth);
@@ -209,6 +223,7 @@ namespace SimplePaint
             this.grpLineWidth.ResumeLayout(false);
             this.grpLineWidth.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.trbLineWidth)).EndInit();
+            this.pnlCanvas.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.picCanvas)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
@@ -228,6 +243,7 @@ namespace SimplePaint
         private System.Windows.Forms.TrackBar trbLineWidth;
         private System.Windows.Forms.Button btnOpenFile;
         private System.Windows.Forms.Button btnSaveFile;
+        private System.Windows.Forms.Panel pnlCanvas;
         private System.Windows.Forms.PictureBox picCanvas;
     }
 }
